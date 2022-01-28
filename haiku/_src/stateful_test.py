@@ -232,6 +232,30 @@ class StatefulTest(parameterized.TestCase):
     jax_call_count = len(witness)
     self.assertEqual(hk_call_count, jax_call_count)
 
+  @test_utils.transform_and_run
+  def test_cond_no_args(self):
+    x = stateful.cond(True, lambda: 5, lambda: 4)
+    self.assertEqual(x, 5)
+
+  @test_utils.transform_and_run
+  def test_cond_two_args(self):
+    a, b = stateful.cond(True,
+                         lambda a, b: (b, a),
+                         lambda a, b: (a, b),
+                         2, 1)
+    self.assertEqual(a, 1)
+    self.assertEqual(b, 2)
+
+  @test_utils.transform_and_run
+  def test_cond_three_args(self):
+    a, b, c = stateful.cond(True,
+                            lambda a, b, c: (c, b, a),
+                            lambda a, b, c: (a, b, c),
+                            3, 2, 1)
+    self.assertEqual(a, 1)
+    self.assertEqual(b, 2)
+    self.assertEqual(c, 3)
+
   def test_cond_no_transform(self):
     x = jnp.array(3.)
     with self.assertRaises(ValueError, msg="Use jax.cond() instead"):
